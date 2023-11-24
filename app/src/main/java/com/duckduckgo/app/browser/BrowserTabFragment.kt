@@ -1108,11 +1108,11 @@ class BrowserTabFragment :
     }
 
     private fun onRefreshRequested() {
-        viewModel.onRefreshRequested()
+        viewModel.onRefreshRequested(triggeredByUser = true)
     }
 
     override fun onAutofillStateChange() {
-        viewModel.onRefreshRequested()
+        viewModel.onRefreshRequested(triggeredByUser = false)
     }
 
     override fun onRejectGeneratedPassword(originalUrl: String) {
@@ -3192,7 +3192,7 @@ class BrowserTabFragment :
                     viewModel.onUserLongPressedBack()
                 }
                 onMenuItemClicked(menuBinding.refreshMenuItem) {
-                    viewModel.onRefreshRequested()
+                    viewModel.onRefreshRequested(triggeredByUser = true)
                     pixel.fire(AppPixelName.MENU_ACTION_REFRESH_PRESSED.pixelName)
                 }
                 onMenuItemClicked(menuBinding.newTabMenuItem) {
