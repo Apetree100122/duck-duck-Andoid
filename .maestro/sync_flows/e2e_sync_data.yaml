@@ -1,0 +1,12 @@
+appId: com.duckduckgo.mobile.android
+name: "ReleaseTest: Sync can recover a created account"
+tags:
+  - syncCriticalPathTest
+---
+- launchApp:
+    clearState: true
+    stopApp: true
+- runFlow: ../sync_flows/e2e_add_new_device.yaml
+- runScript: bookmark_domains.js
+# Until here we've joined an account that has predefined data
+- runFlow: ../shared/open_bookmarks.yaml
