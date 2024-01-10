@@ -28,13 +28,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         archivesBaseName = "duckduckgo-$versionName"
         vectorDrawables.useSupportLibrary = true
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
-            }
-        }
         sourceSets {
-            androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
             main {
                 java {
                     resources {
@@ -79,19 +73,11 @@ android {
                 applicationIdSuffix ".debug"
             }
             pseudoLocalesEnabled false
-            manifestPlaceholders = [
-                    appIcon     : "@mipmap/ic_launcher_blue",
-                    appIconRound: "@mipmap/ic_launcher_blue_round"
-            ]
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
-            manifestPlaceholders = [
-                    appIcon     : "@mipmap/ic_launcher_red",
-                    appIconRound: "@mipmap/ic_launcher_red_round"
-            ]
         }
     }
     flavorDimensions "store"

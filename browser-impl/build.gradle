@@ -29,6 +29,18 @@ android {
 
     flavorDimensions "store"
     buildTypes {
+        debug {
+            manifestPlaceholders = [
+                    appIcon     : "@mipmap/ic_launcher_blue",
+                    appIconRound: "@mipmap/ic_launcher_blue_round"
+            ]
+        }
+        release {
+            manifestPlaceholders = [
+                    appIcon     : "@mipmap/ic_launcher_red",
+                    appIconRound: "@mipmap/ic_launcher_red_round"
+            ]
+        }
     }
     productFlavors {
         internal {
@@ -45,13 +57,22 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    defaultConfig {
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
+        sourceSets {
+            androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
+        }
+    }
     kotlin {
         jvmToolchain(17)
     }
     anvil {
         generateDaggerFactories = true // default is false
     }
-
     testOptions {
         unitTests.returnDefaultValues = true
         animationsDisabled = true
