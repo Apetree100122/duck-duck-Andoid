@@ -63,6 +63,7 @@ import com.duckduckgo.privacy.config.api.UserAgent
 import com.duckduckgo.request.filterer.api.RequestFilterer
 import com.duckduckgo.user.agent.api.UserAgentProvider
 import com.duckduckgo.user.agent.impl.RealUserAgentProvider
+import com.jakewharton.threetenabp.AndroidThreeTen
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.runBlocking
@@ -159,6 +160,7 @@ class DomainsReferenceTest(private val testCase: TestCase) {
     @UiThreadTest
     @Before
     fun setup() {
+        AndroidThreeTen.init(InstrumentationRegistry.getInstrumentation().targetContext)
         initialiseTds()
         initialiseResourceSurrogates()
         whenever(mockRequest.isForMainFrame).thenReturn(false)
