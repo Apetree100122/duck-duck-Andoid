@@ -37,6 +37,7 @@ class CredentialsLastModifiedWinsStrategy(
         clientModifiedSince: String,
     ): SyncMergeResult {
         Timber.d("Sync-autofill-Persist: ======= MERGING TIMESTAMP =======")
+        var hasDataChangedWhileSyncing = false
         return kotlin.runCatching {
             runBlocking(dispatchers.io()) {
                 credentials.entries.forEach { entry ->
@@ -44,7 +45,9 @@ class CredentialsLastModifiedWinsStrategy(
                     if (localCredential == null) {
                         processNewEntry(entry, clientModifiedSince)
                     } else {
-                        processExistingEntry(localCredential, entry, clientModifiedSince)
+                        if (processExistingEntry(localCredential, entry, clientModifiedSince)) {
+                            hasDataChangedWhileSyncing = true
+                        }
                     }
                 }
             }
@@ -52,12 +55,15 @@ class CredentialsLastModifiedWinsStrategy(
             Timber.d("Sync-autofill-Persist: merging failed with error $it")
             return Error(reason = "LastModified merge failed with error $it")
         }.let {
-            Timber.d("Sync-autofill-Persist: merging completed")
-            Success()
+            Timber.d("Sync-autofill-Persist: merging completed, hasDataChangedWhileSyncing = $hasDataChangedWhileSyncing ")
+            Success(timestampConflict = hasDataChangedWhileSyncing)
         }
     }
 
-    private suspend fun processNewEntry(entry: CredentialsSyncEntryResponse, clientModifiedSince: String) {
+    private suspend fun processNewEntry(
+        entry: CredentialsSyncEntryResponse,
+        clientModifiedSince: String,
+    ) {
         if (entry.isDeleted()) return
         val newCredential = credentialsSyncMapper.toLoginCredential(
             remoteEntry = entry,
@@ -67,16 +73,21 @@ class CredentialsLastModifiedWinsStrategy(
         credentialsSync.saveCredential(newCredential, remoteId = entry.id)
     }
 
+    /**
+     * Process an entry that exists locally
+     * If the data has changed while syncing, and was not deleted, we don't process it as per algorithm design.
+     * @return [Boolean] true if data has changed while syncing
+     */
     private suspend fun processExistingEntry(
         localCredential: LoginCredentials,
         remoteEntry: CredentialsSyncEntryResponse,
         clientModifiedSince: String,
-    ) {
+    ): Boolean {
         val localId = localCredential.id!!
         if (remoteEntry.isDeleted()) {
             Timber.d("Sync-autofill-Persist: >>> delete local ${localCredential.id}")
             credentialsSync.deleteCredential(localId)
-            return
+            return false
         }
         val hasDataChangedWhileSyncing = (localCredential.lastUpdatedMillis ?: 0) >= DatabaseDateFormatter.parseIso8601ToMillis(
             clientModifiedSince,
@@ -86,6 +97,7 @@ class CredentialsLastModifiedWinsStrategy(
             Timber.d("Sync-autofill-Persist: >>> update with remote $remoteCredentials")
             credentialsSync.updateCredentials(remoteCredentials, remoteEntry.id)
         }
+        return hasDataChangedWhileSyncing
     }
 
     private fun mapRemoteToLocalLoginCredential(
