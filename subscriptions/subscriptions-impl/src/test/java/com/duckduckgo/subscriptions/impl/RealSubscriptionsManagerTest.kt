@@ -18,6 +18,7 @@ import com.duckduckgo.subscriptions.impl.SubscriptionsData.Failure
 import com.duckduckgo.subscriptions.impl.SubscriptionsData.Success
 import com.duckduckgo.subscriptions.impl.billing.BillingClientWrapper
 import com.duckduckgo.subscriptions.impl.billing.PurchaseState
+import com.duckduckgo.subscriptions.impl.repository.RealAuthRepository
 import com.duckduckgo.subscriptions.impl.services.AccessTokenResponse
 import com.duckduckgo.subscriptions.impl.services.AccountResponse
 import com.duckduckgo.subscriptions.impl.services.AuthService
@@ -56,6 +57,7 @@ class RealSubscriptionsManagerTest {
     private val authService: AuthService = mock()
     private val subscriptionsService: SubscriptionsService = mock()
     private val authDataStore: AuthDataStore = FakeDataStore()
+    private val authRepository = RealAuthRepository(authDataStore)
     private val emailManager: EmailManager = mock()
     private val billingClient: BillingClientWrapper = mock()
     private val billingBuilder: BillingFlowParams.Builder = mock()
@@ -71,7 +73,7 @@ class RealSubscriptionsManagerTest {
         subscriptionsManager = RealSubscriptionsManager(
             authService,
             subscriptionsService,
-            authDataStore,
+            authRepository,
             billingClient,
             emailManager,
             context,
@@ -156,6 +158,7 @@ class RealSubscriptionsManagerTest {
         givenUserIsNotAuthenticated()
         givenPurchaseStored()
         givenPurchaseStoredIsValid()
+        givenValidateTokenSucceedsNoEntitlements()
         givenAuthenticateSucceeds()
 
         subscriptionsManager.recoverSubscriptionFromStore()
@@ -329,6 +332,7 @@ class RealSubscriptionsManagerTest {
     fun whenPurchaseFlowIfAccountCreatedThenSignInUserAndSetToken() = runTest {
         givenUserIsNotAuthenticated()
         givenCreateAccountSucceeds()
+        givenValidateTokenSucceedsNoEntitlements()
         givenAuthenticateSucceeds()
 
         subscriptionsManager.purchase(mock(), mock(), "", false)
@@ -345,6 +349,7 @@ class RealSubscriptionsManagerTest {
         givenUserIsNotAuthenticated()
         givenPurchaseStored()
         givenPurchaseStoredIsValid()
+        givenValidateTokenSucceedsNoEntitlements()
         givenAuthenticateSucceeds()
 
         subscriptionsManager.purchase(mock(), mock(), "", false)
@@ -399,7 +404,7 @@ class RealSubscriptionsManagerTest {
         val manager = RealSubscriptionsManager(
             authService,
             subscriptionsService,
-            authDataStore,
+            authRepository,
             billingClient,
             emailManager,
             context,
@@ -421,7 +426,7 @@ class RealSubscriptionsManagerTest {
         val manager = RealSubscriptionsManager(
             authService,
             subscriptionsService,
-            authDataStore,
+            authRepository,
             billingClient,
             emailManager,
             context,
@@ -443,7 +448,7 @@ class RealSubscriptionsManagerTest {
         val manager = RealSubscriptionsManager(
             authService,
             subscriptionsService,
-            authDataStore,
+            authRepository,
             billingClient,
             emailManager,
             context,
@@ -464,7 +469,7 @@ class RealSubscriptionsManagerTest {
         val manager = RealSubscriptionsManager(
             authService,
             subscriptionsService,
-            authDataStore,
+            authRepository,
             billingClient,
             emailManager,
             context,
@@ -485,7 +490,7 @@ class RealSubscriptionsManagerTest {
         val manager = RealSubscriptionsManager(
             authService,
             subscriptionsService,
-            authDataStore,
+            authRepository,
             billingClient,
             emailManager,
             context,
@@ -510,7 +515,7 @@ class RealSubscriptionsManagerTest {
         val manager = RealSubscriptionsManager(
             authService,
             subscriptionsService,
-            authDataStore,
+            authRepository,
             billingClient,
             emailManager,
             context,
@@ -537,7 +542,7 @@ class RealSubscriptionsManagerTest {
         val manager = RealSubscriptionsManager(
             authService,
             subscriptionsService,
-            authDataStore,
+            authRepository,
             billingClient,
             emailManager,
             context,
@@ -842,6 +847,10 @@ class RealSubscriptionsManagerTest {
 
         override var accessToken: String? = null
         override var authToken: String? = null
+        override var email: String? = null
+        override var externalId: String? = null
+        override var expiresOrRenewsAt: Long? = null
+        override var platform: String? = null
         override fun canUseEncryption(): Boolean = true
     }
 }

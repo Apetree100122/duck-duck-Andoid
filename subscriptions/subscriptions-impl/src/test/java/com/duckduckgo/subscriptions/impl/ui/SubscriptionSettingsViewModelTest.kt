@@ -46,6 +46,7 @@ class SubscriptionSettingsViewModelTest {
                 startedAt = 1234,
                 expiresOrRenewsAt = 1701694623000,
                 status = AutoRenewable,
+                platform = "android",
             ),
         )
 
@@ -63,6 +64,7 @@ class SubscriptionSettingsViewModelTest {
                 startedAt = 1234,
                 expiresOrRenewsAt = 1701694623000,
                 status = AutoRenewable,
+                platform = "android",
             ),
         )
 
@@ -80,6 +82,7 @@ class SubscriptionSettingsViewModelTest {
                 startedAt = 1234,
                 expiresOrRenewsAt = 1701694623000,
                 status = AutoRenewable,
+                platform = "android",
             ),
         )
 
