@@ -394,6 +394,12 @@ class AutofillSettingsViewModel @Inject constructor(
         }
     }
 
+    fun onBulkDeleteCredentials(loginCredentialIds: List<Long>) {
+        viewModelScope.launch(dispatchers.io()) {
+            autofillStore.deleteCredentials(loginCredentialIds)
+        }
+    }
+
     fun saveOrUpdateCredentials(credentials: LoginCredentials) {
         viewModelScope.launch(dispatchers.io()) {
             val credentialMode = _viewState.value.credentialMode

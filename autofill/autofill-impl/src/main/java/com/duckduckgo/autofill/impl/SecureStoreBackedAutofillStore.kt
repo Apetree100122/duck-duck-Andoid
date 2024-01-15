@@ -193,6 +193,13 @@ class SecureStoreBackedAutofillStore @Inject constructor(
         return existingCredential?.toLoginCredentials()
     }
 
+    override suspend fun deleteCredentials(ids: List<Long>) {
+        Timber.v("About to delete %d credentials", ids.size)
+        ids.forEach {
+            deleteCredentials(it)
+        }
+    }
+
     override suspend fun updateCredentials(credentials: LoginCredentials): LoginCredentials? {
         val cleanedDomain: String? = credentials.domain?.let {
             autofillUrlMatcher.cleanRawUrl(it)

@@ -99,6 +99,11 @@ interface AutofillStore {
     suspend fun deleteCredentials(id: Long): LoginCredentials?
 
     /**
+     * Deletes the credentials with the given IDs
+     */
+    suspend fun deleteCredentials(ids: List<Long>)
+
+    /**
      * Updates the given login credentials, replacing what was saved before for the credentials with the specified ID
      * @param credentials The ID of the given credentials must match a saved credential for it to be updated.
      * @return The saved credential if it saved successfully, otherwise null
